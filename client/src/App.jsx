@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import Web3 from 'web3';
-import KYCVerification from './abis/KYCVerification.json';  // ABI of deployed contract
+import KYCVerification from './abis/KYCVerification.json';
+import { uploadToIPFS } from './pinata';  // Import the Pinata function
 
 function App() {
     const [account, setAccount] = useState('');
     const [aadharNumber, setAadharNumber] = useState('');
+    const [name, setName] = useState('');
+    const [dob, setDob] = useState('');
+    const [gender, setGender] = useState('');
     const [isVerified, setIsVerified] = useState(false);
     const [contract, setContract] = useState(null);
     const [web3, setWeb3] = useState(null);
@@ -30,8 +34,12 @@ function App() {
     };
 
     const verifyUser = async () => {
-        await contract.methods.verifyUser(aadharNumber).send({ from: account });
-        setIsVerified(true);
+        const userData = { name, dob, aadharNumber, gender };
+        const ipfsHash = await uploadToIPFS(userData);  // Upload user data to IPFS
+        if (ipfsHash) {
+            await contract.methods.verifyUser(aadharNumber, ipfsHash).send({ from: account, gas: 3000000 });
+            setIsVerified(true);
+        }
     };
 
     const checkVerification = async () => {
@@ -43,12 +51,10 @@ function App() {
         <div>
             <h1>KYC Verification</h1>
             <p>Connected Account: {account}</p>
-            <input
-                type="text"
-                placeholder="Enter Aadhar Number"
-                value={aadharNumber}
-                onChange={(e) => setAadharNumber(e.target.value)}
-            />
+            <input type="text" placeholder="Enter Name" value={name} onChange={(e) => setName(e.target.value)} />
+            <input type="text" placeholder="Enter DOB" value={dob} onChange={(e) => setDob(e.target.value)} />
+            <input type="text" placeholder="Enter Aadhar Number" value={aadharNumber} onChange={(e) => setAadharNumber(e.target.value)} />
+            <input type="text" placeholder="Enter Gender" value={gender} onChange={(e) => setGender(e.target.value)} />
             <button onClick={verifyUser}>Verify User</button>
             <button onClick={checkVerification}>Check Verification</button>
             {isVerified && <p>User is Verified!</p>}
