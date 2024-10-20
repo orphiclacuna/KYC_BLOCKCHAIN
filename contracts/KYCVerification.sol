@@ -4,26 +4,41 @@ pragma solidity ^0.8.13;
 contract KYCVerification {
     struct User {
         string aadharNumber;
-        string ipfsHash; // Storing IPFS hash
+        string name;
+        uint256 dob; // Date of Birth as timestamp
         bool isVerified;
     }
 
-    mapping(string => User) private users;
+    mapping(address => User) public users;
+    address public admin;
 
-    event UserVerified(string indexed aadharNumber, string ipfsHash, bool verified);
+    event VerificationRequested(address indexed user, string aadharNumber);
+    event UserVerified(address indexed user, string aadharNumber);
 
-    function verifyUser(string memory aadharNumber, string memory ipfsHash) public {
-        // Store user details and mark them as verified
-        users[aadharNumber] = User(aadharNumber, ipfsHash, true);
-        emit UserVerified(aadharNumber, ipfsHash, true);
+    constructor() {
+        admin = msg.sender; // The account deploying the contract is the admin
     }
 
-    function isUserVerified(string memory aadharNumber) public view returns (bool) {
-        return users[aadharNumber].isVerified;
+    // Function for users to request verification
+    function requestVerification(string memory aadharNumber, string memory name, uint256 dob) public {
+        require(bytes(aadharNumber).length == 16, "Aadhar number must be 16 digits");
+        require(users[msg.sender].dob == 0, "Verification already requested");
+        
+        users[msg.sender] = User(aadharNumber, name, dob, false);
+        emit VerificationRequested(msg.sender, aadharNumber);
     }
 
-    function getUserIPFSHash(string memory aadharNumber) public view returns (string memory) {
-        require(users[aadharNumber].isVerified, "User is not verified");
-        return users[aadharNumber].ipfsHash;
+    // Admin function to verify a user
+    function verifyUser(address userAddress) public {
+        require(msg.sender == admin, "Only admin can verify users");
+        require(users[userAddress].dob != 0, "User has not requested verification");
+        
+        users[userAddress].isVerified = true;
+        emit UserVerified(userAddress, users[userAddress].aadharNumber);
+    }
+
+    // Function to check if a user is verified
+    function isUserVerified(address userAddress) public view returns (bool) {
+        return users[userAddress].isVerified;
     }
 }
