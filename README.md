@@ -31,7 +31,6 @@ KYC_BLOCKCHAIN/
 ├── contracts/                 # Solidity smart contracts
 │   └── KYCVerification.sol    # KYC contract
 ├── migrations/                # Truffle migration scripts
-├── test/                      # Smart contract test scripts
 ├── node_modules/              # Node.js dependencies
 ├── package.json               # Project configuration and dependencies
 ├── truffle-config.js          # Truffle configuration file
