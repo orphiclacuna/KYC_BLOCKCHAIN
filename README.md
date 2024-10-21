@@ -46,12 +46,6 @@ The `KYCVerification.sol` contract manages:
 - **Document Verification**: Authorized verifiers can verify users' documents.
 - **Access Control**: Users can grant or revoke access to third-party organizations.
 
-### Key Functions
-- `registerUser()`: Registers a new user for KYC verification.
-- `verifyUser()`: Verifies the KYC details of a user.
-- `grantAccess()`: Allows an institution to access user KYC data.
-- `revokeAccess()`: Revokes previously granted access.
-
 ## Setup Instructions
 
 ### Prerequisites
@@ -93,22 +87,7 @@ Ensure you have the following installed:
 
 6. Connect MetaMask to your local blockchain (Ganache) and interact with the dApp.
 
-## Testing
-Run the smart contract tests using Truffle:
-```bash
-truffle test
-```
-
-Tests are located in the `test/` folder and cover user registration, document verification, and access control.
-
 ## Future Enhancements
 - **Multi-Blockchain Support**: Extend support to other blockchains like Binance Smart Chain.
 - **zk-SNARKs Integration**: Enhance privacy by implementing zero-knowledge proofs.
 - **Government Database Integration**: Automate document verification using government records.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
-This updated README should now match your repository structure and the project’s functionality. Let me know if you’d like to make any further modifications!
