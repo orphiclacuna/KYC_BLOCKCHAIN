@@ -42,5 +42,21 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
 
 });
 
+app.get('/api/test', (req, res) => {
+    res.send('Online');
+})
+
+app.post('/api/uploadDemo', (req, res) => {
+    return res.json({
+        "aadhar_number": [
+            "2943 6593 3461",
+            "2943 6593 3461"
+        ],
+        "dob": [
+            "12/12/1988"
+        ],
+        "name": "MERAJ KHAN \n"
+    })
+})
 
 app.listen(3000, () => console.log('Server is online on port 3000'));
