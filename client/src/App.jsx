@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from "web3";
-import KYCVerification from "./abis/KYCVerification.json"; // ABI of deployed contract
+import KYCVerification from "../../build/contracts/KYCVerification.json"; // ABI of deployed contract
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AppBar, Toolbar, Typography, Tabs, Tab, Box, Container } from '@mui/material';
