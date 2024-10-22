@@ -70,6 +70,7 @@ Ensure you have the following installed:
 
 3. Compile the smart contracts:
    ```bash
+   rm -rf build/
    truffle compile
    ```
 
@@ -81,7 +82,7 @@ Ensure you have the following installed:
 5. Run the frontend:
    ```bash
    cd client
-   npm start
+   npm run dev
    ```
 
 6. Connect MetaMask to your local blockchain (Ganache) and interact with the dApp.
