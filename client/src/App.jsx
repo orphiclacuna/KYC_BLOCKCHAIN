@@ -38,7 +38,7 @@ function App() {
   }, [accountNo]);
 
   const loadBlockchainData = async () => {
-    const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+    const web3 = new Web3(Web3.givenProvider || "http://localhost:7545");
     const accounts = await web3.eth.getAccounts();
     setAccounts(accounts);
     if (accounts.length > 0) {
