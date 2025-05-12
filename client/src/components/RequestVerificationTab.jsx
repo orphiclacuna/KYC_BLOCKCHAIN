@@ -1,137 +1,100 @@
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Paper, Grid } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Alert,
+  Chip,
+} from '@mui/material';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 
 function RequestVerificationTab({ account, contract, loadPendingRequests, checkVerification, isVerified }) {
-  const [formData, setFormData] = useState({
-    aadharNumber: '',
-    name: '',
-  });
-  const [aadhar, setAadhar] = useState(null);
-  const [aadharLoading, setAadharLoading] = useState(false);
-  const [dob, setDob] = useState('');
+  const [aadharNumber, setAadharNumber] = useState('');
+  const [name, setName] = useState('');
+  const [statusChecked, setStatusChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    (async () => {
+      await checkVerification();
+      setStatusChecked(true);
+    })();
+  }, [account]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.aadharNumber.length !== 16) {
-      toast.error("Aadhar number must be 16 digits.");
+  const handleSubmit = async () => {
+    if (aadharNumber.length !== 16) {
+      toast.error('Aadhar number must be 16 digits');
       return;
     }
-    if (!formData.name) {
-      toast.error("Name is required.");
+
+    if (!name.trim()) {
+      toast.error('Name is required');
       return;
     }
 
     try {
+      setLoading(true);
       await contract.methods
-        .requestVerification(account, formData.aadharNumber, formData.name)
-        .send({ from: account, gas: 3000000 });
-      toast.success("Verification request sent.");
+        .requestVerification(account, aadharNumber, name)
+        .send({ from: account });
+
+      toast.success('Verification request submitted');
+      setAadharNumber('');
+      setName('');
       loadPendingRequests();
     } catch (error) {
-      console.error("Error requesting verification:", error.message || error);
-      toast.error("Failed to send verification request. Please check the console for details.");
+      console.error('Request error:', error);
+      toast.error('Failed to submit request. Check console.');
+    } finally {
+      setLoading(false);
     }
   };
-  
-  function handleImageSubmit(e){
-    e.preventDefault();
-    e.stopPropagation();
-    handleImageSubmitHelp(e);
-  }
-
-  async function handleImageSubmitHelp(e) {
-    try {
-      const formData = new FormData();
-      formData.append('image', aadhar);
-      setAadharLoading(true);
-      const res = await axios.post('http://localhost:3000/api/upload', formData, {
-        headers: {
-          'content-type': 'multipart/form-data',
-        }
-      });
-      const {data} = res;
-      setFormData({
-        aadharNumber: data.aadhar_number.pop().replaceAll(' ', ''),
-        name: data.name.trim(),
-      })
-      if (data)
-        setDob(data.dob.pop());
-
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }finally{
-      setAadharLoading(false);
-    }
-  }
-
-  async function imageChange(e) {
-    // e.preventDefault();
-    try {
-      setAadhar(e.target.files[0]);
-      console.log('done', e.target.files[0]);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   return (
-    <Paper elevation={3} sx={{ p: 3 }}>
+    <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Request KYC Verification
+        Request Verification
       </Typography>
-      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Aadhar Number"
-              name="aadharNumber"
-              value={formData.aadharNumber}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-        </Grid>
-        <Button type="submit" variant="contained" sx={{ mt: 3, mr: 2 }}>
-          Submit Verification Request
-        </Button>
-        <Button variant="contained" onClick={checkVerification} sx={{ mt: 3 }}>
-          Check My Verification
-        </Button>
-      </Box>
-        <form onSubmit={handleImageSubmit}>
-          <label htmlFor="aadharImage">Upload Image: </label>
-          <input onChange={e => imageChange(e)} id='aadharImage' type="file" accept='image/*' />
-          <Button type="submit" variant="contained" sx={{ mt: 3, mr: 2 }}>
-            Extract Aadhar details from image
-          </Button>
-          <p>{aadharLoading && "Please Wait... Extracting info"}</p>
-          <p>{dob !== '' && `Your DOB: ${dob}`}</p>
-        </form>
-      {isVerified && (
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-          <CheckCircleIcon color="success" sx={{ mr: 1 }} />
-          <Typography>User is Verified!</Typography>
-        </Box>
+
+      {statusChecked && (
+        <Alert severity={isVerified ? 'success' : 'info'} sx={{ mb: 2 }}>
+          {isVerified
+            ? '✅ Your account is already verified.'
+            : '📝 You are not verified. Please submit your details.'}
+        </Alert>
       )}
+
+      <Box display="flex" gap={2} flexDirection="column" maxWidth={400}>
+        <TextField
+          label="Aadhar Number"
+          variant="outlined"
+          value={aadharNumber}
+          onChange={(e) => setAadharNumber(e.target.value)}
+          inputProps={{ maxLength: 16 }}
+        />
+
+        <TextField
+          label="Full Name"
+          variant="outlined"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={loading || isVerified}
+        >
+          {loading ? 'Submitting...' : 'Submit Verification Request'}
+        </Button>
+
+        <Typography variant="body2" color="text.secondary">
+          Note: You can only submit once per account.
+        </Typography>
+      </Box>
     </Paper>
   );
 }

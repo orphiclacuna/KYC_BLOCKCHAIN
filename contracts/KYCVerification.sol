@@ -23,6 +23,9 @@ contract KYCVerification {
     function verifyUser(address userAddress) public {
         require(msg.sender == admin, "Only admin can verify users");
         require(!users[userAddress].isVerified, "User is already verified");
+        const admin = await contract.methods.admin().call();
+        console.log("Connected account:", account);
+        console.log("Contract admin:", admin);
 
         users[userAddress].isVerified = true;
         emit UserVerified(userAddress, users[userAddress].aadharNumber);
