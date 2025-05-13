@@ -1,7 +1,3 @@
-Here’s a properly structured `README.md` file for your **KYC Blockchain System** project, as per your GitHub repository:
-
----
-
 # KYC Blockchain System
 
 ## Overview
